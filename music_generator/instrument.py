@@ -1,3 +1,5 @@
+# Classe própria do instrumento
+
 class Instrument:
     def __init__(self, name, midi_code):
         self.name = name

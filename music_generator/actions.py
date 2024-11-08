@@ -1,3 +1,5 @@
+# Contém as ações possíveis de se realizar
+
 from enum import Enum
 
 # Enum ActionType
