@@ -1,18 +1,16 @@
-import pygame
 import pygame.midi
-from music_generator.user_interface import UserInterface
+from src.user_interface import MusicAppUI  # Importa a classe da interface
+import tkinter as tk
 
-def main():
-    # Inicializa pygame e pygame.midi
-    pygame.init()
-    pygame.midi.init()
-    
-    ui = UserInterface()
-    ui.display()
+# Inicializa o pygame para MIDI
+pygame.midi.init()
 
-    # Finaliza pygame e pygame.midi
-    pygame.midi.quit()
-    pygame.quit()
+# Criação da janela principal do Tkinter
+root = tk.Tk()
+app = MusicAppUI(root)  # Cria a instância da interface gráfica
 
-if __name__ == "__main__":
-    main()
+# Inicia a interface gráfica
+root.mainloop()
+
+# Finaliza o pygame quando a interface for fechada
+pygame.midi.quit()
