@@ -14,6 +14,8 @@ class CharacterMapper:
             'F': ('note', 17),  # Nota Fá na oitava 0
             'G': ('note', 19),  # Nota Sol na oitava 0
             ' ': ('volume', None),    # Ajuste de volume
+            '+': ('duration', 'up'),  # Sobe o bpm
+            '-': ('duration', 'down'),  # Desce o bpm
             '?': ('octave', 'up'),    # Sobe uma oitava
             '.': ('octave', 'up'),    # Sobe uma oitava
             '$': ('octave', 'down'),  # Sobe uma oitava
