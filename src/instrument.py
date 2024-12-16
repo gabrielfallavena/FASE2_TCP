@@ -16,7 +16,7 @@ class Instrument:
 
     def __init__(self, name):
         if name not in Instrument.ALL_INSTRUMENTS:
-            raise ValueError(f"Instrumento '{name}' não está no dicionário.")
+            raise ValueError(f"Instrumento '{name}' não está disponível")
         self.name = name
         self.midi_code = Instrument.ALL_INSTRUMENTS[name]
 

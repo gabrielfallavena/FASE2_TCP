@@ -8,12 +8,24 @@ from src.instrument import Instrument
 from src.note import Note
 from mido import MidiFile, MidiTrack, Message
 
+PPQ = 960
+MAX_OCTAVE = 8
+MIN_OCTAVE = 0
+MAX_VOLUME = 127
+MIN_VOLUME = 0
+VAR_VOLUME = 10
+VAR_DURATION = 0.1
+INITIAL_VOLUME = 32
+INITIAL_OCTAVE = 4
+INITIAL_DURATION = 0.5
+INITIAL_INSTRUMENT = Instrument("Piano")
+
 class MusicGenerator:
     def __init__(self):
-        self.volume = 32
-        self.octave = 4
-        self.duration = 0.5
-        self.current_instrument = Instrument("Piano")
+        self.volume = INITIAL_VOLUME 
+        self.octave = INITIAL_OCTAVE
+        self.duration = INITIAL_DURATION
+        self.current_instrument = INITIAL_INSTRUMENT
         self.mapper = CharacterMapper()
         self.midi_out = pygame.midi.Output(0)        
 
@@ -24,6 +36,7 @@ class MusicGenerator:
         self.track.append(Message('program_change', program=0, time=0))
 
     def generate_music(self, input_text):
+        self.clear_track()
         for char in input_text:
             action, value, text = self.mapper.map_character(char)
             match action:
@@ -55,18 +68,20 @@ class MusicGenerator:
         # Calcula o valor final do pitch somando a base com a oitava
         note = Note(pitch_base, self.duration, self.volume, self.octave)
         note.play(self.midi_out)
+        self.track.append(Message('note_on', note=note.pitch, velocity=self.volume, time=0))  # Inicia a nota
+        self.track.append(Message('note_off', note=note.pitch, velocity=self.volume, time=int(PPQ*self.duration)))  # Duração da nota (480 ticks)
 
     def add_volume(self):
-        self.volume = min(self.volume + 10 , 127) 
+        self.volume = min(self.volume + VAR_VOLUME , MAX_VOLUME) 
 
     def dec_volume(self):
-        self.volume = max(self.volume - 10, 0) 
+        self.volume = max(self.volume - VAR_VOLUME, MIN_VOLUME) 
     
     def max_volume(self):
-        self.volume = 127
+        self.volume = MAX_VOLUME
     
     def min_volume(self):
-        self.volume = 5
+        self.volume = MIN_VOLUME
 
     def switch_midi_out(self, instrument):
         # Troca o instrumento atual e o midi_out para o instrumento passado
@@ -76,25 +91,31 @@ class MusicGenerator:
 
     def add_octave(self):
         # Sobe uma oitava dentro dos limites do MIDI
-        self.octave = min(self.octave + 1, 8)
+        self.octave = min(self.octave + 1, MAX_OCTAVE)
 
     def dec_octave(self):
         # Desce uma oitava dentro dos limites do MIDI
-        self.octave = max(self.octave - 1, 0)
+        self.octave = max(self.octave - 1, MIN_OCTAVE)
 
     def add_duration(self):
         # Aumenta a duração da nota
-        self.duration += 0.1
+        self.duration += VAR_DURATION
 
     def dec_duration(self):
-        # Diminui a duração da nota
-        self.duration -= 0.1
+        # Diminui a duração da nota (mínimo 0)
+        self.duration = max(self.duration - VAR_DURATION, 0)
 
     def pause(self, pause_duration):
         # Pausa entre ações de acordo com o valor passado
         pygame.time.delay(pause_duration)
+        self.track.append(Message('note_on', note=0, velocity=0, time=pause_duration*PPQ))  # Pausa com duração específica
 
-    #def save_midi(self, file_path):
+    def save_midi(self, file_name):
         # Salva o arquivo MIDI gerado
-    #    self.midi_file.save(file_path)
-    #    print(f"Arquivo MIDI salvo em: {file_path}")
+        self.midi_file.save(file_name)
+        print(f"Arquivo MIDI salvo como {file_name}")
+
+    def clear_track(self):
+        # Remove todos os eventos da faixa
+        self.track = MidiTrack() 
+        self.midi_file.tracks = [self.track]

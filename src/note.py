@@ -15,3 +15,4 @@ class Note:
         midi_out.note_on(self.pitch + (self.octave * 12), self.volume) 
         pygame.time.delay(int(self.duration * 1000))
         midi_out.note_off(self.pitch + (self.octave * 12), self.volume)
+        self.pitch = self.pitch + (self.octave * 12) #Nota tocada de fato

@@ -41,7 +41,7 @@ class MusicAppUI(ctk.CTk):
         self.setup_right_frame()
 
     def setup_left_frame(self):
-        """Seção para mostrar os caracteres mapeados em formato de tabela."""
+        # Seção para mostrar os caracteres mapeados em formato de tabela.
         label = ctk.CTkLabel(self.left_frame, text="Mapeamento de Caracteres", font=("Arial", 16, "bold"))
         label.grid(row=0, column=0, columnspan=2, pady=10)  # Coloca o título no topo
 
@@ -161,6 +161,9 @@ class MusicAppUI(ctk.CTk):
         self.generator.duration = self.initial_bpm / 60
         self.generator.switch_midi_out(self.initial_instrument)
         messagebox.showinfo("Configurações", "Configurações aplicadas com sucesso!")
+        print("Antes de executar: ")
+        print(self.initial_bpm)
+        print(self.generator.duration)
 
     def generate_music(self):
         text = self.text_input.get("0.0", "end").strip()
@@ -170,8 +173,16 @@ class MusicAppUI(ctk.CTk):
             self.generator.generate_music(text)
             messagebox.showinfo("Música Gerada", "A música foi gerada com sucesso!")
 
+        print("Depois da musica: ")
+        print(self.initial_bpm)
+        print(self.generator.duration)
+
         # Reload das configurações iniciais 
         self.generator.volume = self.initial_volume
         self.generator.octave = self.initial_octave
         self.generator.duration = self.initial_bpm / 60
         self.generator.switch_midi_out(self.initial_instrument)
+
+        print("Depois do reload: ")
+        print(self.initial_bpm)
+        print(self.generator.duration)
