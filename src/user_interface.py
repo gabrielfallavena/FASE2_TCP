@@ -1,6 +1,8 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from src.music_generator import MusicGenerator
+from src.instrument import Instrument
+from src.character_mapper import CharacterMapper
 
 
 class MusicAppUI(ctk.CTk):
@@ -9,7 +11,7 @@ class MusicAppUI(ctk.CTk):
 
         # Configurações da Janela
         self.title("Gerador Musical")
-        self.geometry("800x600")
+        self.geometry("1000x600")
 
         # Inicializa o gerador de música
         self.generator = MusicGenerator()
@@ -18,49 +20,71 @@ class MusicAppUI(ctk.CTk):
         self.initial_volume = self.generator.volume
         self.initial_octave = self.generator.octave
         self.initial_bpm = self.generator.duration * 60
-        self.initial_instrument = "Piano"
-        self.instrument_options = {
-            "Piano": 0,
-            "Xilofone": 14,
-            "Tubular Bells": 15,
-            "Órgão": 19
-        }
+        self.initial_instrument = self.generator.current_instrument.name
 
-        # Layout principal: Dividido em dois frames
+         # Layout principal (esquerda, centro e direita)
         self.main_frame = ctk.CTkFrame(self)
         self.main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-        self.left_frame = ctk.CTkFrame(self.main_frame, width=400)
-        self.left_frame.pack(side="left", fill="both", expand=True, padx=10)
+        self.left_frame = ctk.CTkScrollableFrame(self.main_frame, width=220)
+        self.left_frame.pack(side="left", fill="y", padx=10)
+
+        self.center_frame = ctk.CTkFrame(self.main_frame, width=400)
+        self.center_frame.pack(side="left", fill="both", expand=True, padx=10)
 
         self.right_frame = ctk.CTkFrame(self.main_frame, width=300)
-        self.right_frame.pack(side="right", fill="both", expand=True, padx=10)
+        self.right_frame.pack(side="right", fill="y", padx=10)
 
         # Configuração das Seções
         self.setup_left_frame()
+        self.setup_center_frame()
         self.setup_right_frame()
 
     def setup_left_frame(self):
+        """Seção para mostrar os caracteres mapeados em formato de tabela."""
+        label = ctk.CTkLabel(self.left_frame, text="Mapeamento de Caracteres", font=("Arial", 16, "bold"))
+        label.grid(row=0, column=0, columnspan=2, pady=10)  # Coloca o título no topo
+
+        # A classe CharacterMapper deve ter um método que retorna o mapeamento
+        char_mapper = CharacterMapper()  # Criação da instância
+        mapping = char_mapper.get_mapping()  # Obtém o mapeamento de caracteres
+
+        # Títulos das colunas
+        char_title = ctk.CTkLabel(self.left_frame, text="Caractere", font=("Arial", 12, "bold"))
+        action_title = ctk.CTkLabel(self.left_frame, text="Ação", font=("Arial", 12, "bold"))
+        char_title.grid(row=1, column=0, padx=5, pady=5)
+        action_title.grid(row=1, column=1, padx=5, pady=5)
+
+        # Preenchendo a tabela com o mapeamento
+        row = 2  # Começamos a preencher a partir da linha 2
+        for char, action in mapping.items():
+            char_label = ctk.CTkLabel(self.left_frame, text=char, font=("Arial", 12))
+            action_label = ctk.CTkLabel(self.left_frame, text=f"{action[2]}", font=("Arial", 12))
+            char_label.grid(row=row, column=0, padx=2, pady=0)
+            action_label.grid(row=row, column=1, padx=2, pady=0)
+            row += 1  # Incrementa para a próxima linha
+
+    def setup_center_frame(self):
         # Campo de texto e botões à esquerda
-        label = ctk.CTkLabel(self.left_frame, text="Digite o texto ou carregue de um arquivo:")
+        label = ctk.CTkLabel(self.center_frame, text="Digite o texto ou carregue de um arquivo:", font=("Arial", 16, "bold"))
         label.pack(pady=10)
 
-        self.text_input = ctk.CTkTextbox(self.left_frame, height=300, width=350)
+        self.text_input = ctk.CTkTextbox(self.center_frame, height=300, width=400)
         self.text_input.pack(pady=10)
 
-        loadFile_button = ctk.CTkButton(self.left_frame, text="Carregar Arquivo", command=self.load_file)
+        loadFile_button = ctk.CTkButton(self.center_frame, text="Carregar Arquivo", command=self.load_file)
         loadFile_button.pack(pady=10)
 
         # Botão para salvar o arquivo MIDI
-        save_button = ctk.CTkButton(self.left_frame, text="Salvar como MIDI", command=self.save_midi)
+        save_button = ctk.CTkButton(self.center_frame, text="Salvar como MIDI", command=self.save_midi)
         save_button.pack(pady=10)
 
-        generateMusic_button = ctk.CTkButton(self.left_frame, text="Gerar Música", command=self.generate_music)
+        generateMusic_button = ctk.CTkButton(self.center_frame, text="Gerar Música", command=self.generate_music)
         generateMusic_button.pack(pady=10)
 
     def setup_right_frame(self):
         # Configurações de Volume, Oitava e Instrumento à direita
-        config_label = ctk.CTkLabel(self.right_frame, text="Configurações Iniciais", font=("Arial", 16))
+        config_label = ctk.CTkLabel(self.right_frame, text="Configurações Iniciais", font=("Arial", 16, "bold"))
         config_label.pack(pady=10)
 
         # Slider de volume
@@ -91,8 +115,10 @@ class MusicAppUI(ctk.CTk):
         instrument_label = ctk.CTkLabel(self.right_frame, text="Instrumento Inicial:")
         instrument_label.pack(pady=10)
 
-        self.instrument_dropdown = ctk.CTkOptionMenu(self.right_frame, values=list(self.instrument_options.keys()))
-        self.instrument_dropdown.set(self.initial_instrument)
+        # Obtemos os instrumentos disponíveis diretamente da classe `Instrument`
+        instrument_list = Instrument.list_instruments()  # Lista de instrumentos do dicionário
+        self.instrument_dropdown = ctk.CTkOptionMenu(self.right_frame, values=instrument_list)
+        self.instrument_dropdown.set(self.initial_instrument)  # Define o valor inicial
         self.instrument_dropdown.pack(pady=10)
 
         # Botão para aplicar configurações
@@ -109,7 +135,7 @@ class MusicAppUI(ctk.CTk):
             except Exception as e:
                 messagebox.showerror("Erro", f"Erro ao carregar arquivo: {e}")
     
-    #Não ta funcionado
+    # Não ta funcionado
     def save_midi(self):
         # Abre o diálogo para escolher o local de salvamento
         file_path = filedialog.asksaveasfilename(
@@ -133,7 +159,7 @@ class MusicAppUI(ctk.CTk):
         self.generator.volume = self.initial_volume
         self.generator.octave = self.initial_octave
         self.generator.duration = self.initial_bpm / 60
-        self.generator.current_instrument.midi_code = self.instrument_options[self.initial_instrument]
+        self.generator.switch_midi_out(self.initial_instrument)
         messagebox.showinfo("Configurações", "Configurações aplicadas com sucesso!")
 
     def generate_music(self):
@@ -143,7 +169,9 @@ class MusicAppUI(ctk.CTk):
         else:
             self.generator.generate_music(text)
             messagebox.showinfo("Música Gerada", "A música foi gerada com sucesso!")
+
+        # Reload das configurações iniciais 
         self.generator.volume = self.initial_volume
         self.generator.octave = self.initial_octave
         self.generator.duration = self.initial_bpm / 60
-        self.generator.current_instrument.midi_code = self.instrument_options[self.initial_instrument]
+        self.generator.switch_midi_out(self.initial_instrument)
