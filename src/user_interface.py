@@ -19,7 +19,7 @@ class MusicAppUI(ctk.CTk):
         # Configurações iniciais
         self.initial_volume = self.generator.volume
         self.initial_octave = self.generator.octave
-        self.initial_bpm = self.generator.duration * 60
+        self.initial_duration = self.generator.duration
         self.initial_instrument = self.generator.current_instrument.name
 
          # Layout principal (esquerda, centro e direita)
@@ -45,8 +45,7 @@ class MusicAppUI(ctk.CTk):
         label = ctk.CTkLabel(self.left_frame, text="Mapeamento de Caracteres", font=("Arial", 16, "bold"))
         label.grid(row=0, column=0, columnspan=2, pady=10)  # Coloca o título no topo
 
-        # A classe CharacterMapper deve ter um método que retorna o mapeamento
-        char_mapper = CharacterMapper()  # Criação da instância
+        char_mapper = CharacterMapper() 
         mapping = char_mapper.get_mapping()  # Obtém o mapeamento de caracteres
 
         # Títulos das colunas
@@ -56,13 +55,13 @@ class MusicAppUI(ctk.CTk):
         action_title.grid(row=1, column=1, padx=5, pady=5)
 
         # Preenchendo a tabela com o mapeamento
-        row = 2  # Começamos a preencher a partir da linha 2
+        row = 2 
         for char, action in mapping.items():
             char_label = ctk.CTkLabel(self.left_frame, text=char, font=("Arial", 12))
             action_label = ctk.CTkLabel(self.left_frame, text=f"{action[2]}", font=("Arial", 12))
             char_label.grid(row=row, column=0, padx=2, pady=0)
             action_label.grid(row=row, column=1, padx=2, pady=0)
-            row += 1  # Incrementa para a próxima linha
+            row += 1 
 
     def setup_center_frame(self):
         # Campo de texto e botões à esquerda
@@ -103,20 +102,20 @@ class MusicAppUI(ctk.CTk):
         self.octave_dropdown.set(str(self.initial_octave))
         self.octave_dropdown.pack(pady=10)
 
-        # Slider de BPM
-        bpm_label = ctk.CTkLabel(self.right_frame, text=f"BPM Inicial: {self.initial_bpm}")
-        bpm_label.pack(pady=10)
+        # Slider de Duração
+        duration_label = ctk.CTkLabel(self.right_frame, text=f"Duração Inicial: {self.initial_duration}")
+        duration_label.pack(pady=10)
 
-        self.bpm_slider = ctk.CTkSlider(self.right_frame, from_=0, to=60, command=lambda value: bpm_label.configure(text=f"BPM Inicial: {int(value)}"))
-        self.bpm_slider.set(self.initial_bpm)
-        self.bpm_slider.pack(pady=10)
+        self.duration_slider = ctk.CTkSlider(self.right_frame, from_=1, to=60, command=lambda value: duration_label.configure(text=f"Duração Inicial: {int(value)}"))
+        self.duration_slider.set(self.initial_duration)
+        self.duration_slider.pack(pady=10)
 
         # Opções de instrumento
         instrument_label = ctk.CTkLabel(self.right_frame, text="Instrumento Inicial:")
         instrument_label.pack(pady=10)
 
-        # Obtemos os instrumentos disponíveis diretamente da classe `Instrument`
-        instrument_list = Instrument.list_instruments()  # Lista de instrumentos do dicionário
+        # Obtem os instrumentos disponíveis diretamente da classe `Instrument`
+        instrument_list = Instrument.list_instruments()
         self.instrument_dropdown = ctk.CTkOptionMenu(self.right_frame, values=instrument_list)
         self.instrument_dropdown.set(self.initial_instrument)  # Define o valor inicial
         self.instrument_dropdown.pack(pady=10)
@@ -135,7 +134,6 @@ class MusicAppUI(ctk.CTk):
             except Exception as e:
                 messagebox.showerror("Erro", f"Erro ao carregar arquivo: {e}")
     
-    # Não ta funcionado
     def save_midi(self):
         # Abre o diálogo para escolher o local de salvamento
         file_path = filedialog.asksaveasfilename(
@@ -152,18 +150,15 @@ class MusicAppUI(ctk.CTk):
     def apply_settings(self):
         self.initial_volume = int(self.volume_slider.get())
         self.initial_octave = int(self.octave_dropdown.get())
-        self.initial_bpm = int(self.bpm_slider.get())
+        self.initial_duration = int(self.duration_slider.get())
         self.initial_instrument = self.instrument_dropdown.get()
 
         # Configura no gerador musical
         self.generator.volume = self.initial_volume
         self.generator.octave = self.initial_octave
-        self.generator.duration = self.initial_bpm / 60
+        self.generator.duration = self.initial_duration
         self.generator.switch_midi_out(self.initial_instrument)
         messagebox.showinfo("Configurações", "Configurações aplicadas com sucesso!")
-        print("Antes de executar: ")
-        print(self.initial_bpm)
-        print(self.generator.duration)
 
     def generate_music(self):
         text = self.text_input.get("0.0", "end").strip()
@@ -173,16 +168,8 @@ class MusicAppUI(ctk.CTk):
             self.generator.generate_music(text)
             messagebox.showinfo("Música Gerada", "A música foi gerada com sucesso!")
 
-        print("Depois da musica: ")
-        print(self.initial_bpm)
-        print(self.generator.duration)
-
         # Reload das configurações iniciais 
         self.generator.volume = self.initial_volume
         self.generator.octave = self.initial_octave
-        self.generator.duration = self.initial_bpm / 60
+        self.generator.duration = self.initial_duration
         self.generator.switch_midi_out(self.initial_instrument)
-
-        print("Depois do reload: ")
-        print(self.initial_bpm)
-        print(self.generator.duration)

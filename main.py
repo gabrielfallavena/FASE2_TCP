@@ -8,7 +8,6 @@ ctk.set_default_color_theme("blue")
 def main():
     # Inicializa o sistema MIDI
     pygame.midi.init()
-    
     try:
         # Cria a instância da interface gráfica
         app = MusicAppUI()

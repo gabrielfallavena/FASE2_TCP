@@ -1,4 +1,7 @@
-# Mapeia os caracteres para as suas ações correspondentes 
+# Mapeia os caracteres para as suas ações correspondentes
+
+TEMPO_PAUSE = 100
+
 class CharacterMapper:
     def __init__(self):
         self.character_map = {}
@@ -22,21 +25,19 @@ class CharacterMapper:
             'v': ('volume', 'down', 'Volume down'), # Diminui volume
             'M': ('volume', 'max', 'Max Volume'),   # Aumenta volume para o máximo
             'm': ('volume', 'min', 'Min Volume'),   # Diminui volume para o mínimo
-            '+': ('duration', 'up', 'Inc BPM'),     # Sobe o bpm
-            '-': ('duration', 'down', 'Dec BPM'),   # Desce o bpm
-            '>': ('octave', 'up', 'Inc Octave'),    # Sobe uma oitava
-            '<': ('octave', 'down', 'Dec Octave'),  # Sobe uma oitava
+            '+': ('duration', 'up', 'Aumenta Duração'),     # Sobe o bpm
+            '-': ('duration', 'down', 'Diminui Duração'),   # Desce o bpm
+            '>': ('octave', 'up', 'Sobe Oitava'),   # Sobe uma oitava
+            '<': ('octave', 'down', 'Desce Oitava'),# Sobe uma oitava
             'S': ('pause', 100, 'Pause 100 ms'),    # Pause por 100 ms
             'H': ('pause', 250, 'Pause 250 ms'),    # Pause por 250 ms
             'L': ('pause', 500, 'Pause 500 ms'),    # Pause por 500 ms
             'X': ('pause', 1000, 'Pause 1000 ms'),  # Pause por 1000 ms
-
-        }
-    
+        }  
     def get_mapping(self):
         return self.character_map
 
     def map_character(self, char):
         # Retorna o mapeamento do caractere ou uma pausa por 100 ms como padrão
-        return self.character_map.get(char, ('pause', 100))
+        return self.character_map.get(char, ('pause', TEMPO_PAUSE, 0))
 

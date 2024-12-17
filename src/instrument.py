@@ -9,9 +9,14 @@ class Instrument:
         "Xilofone": 14,
         "Tubular Bells": 15,
         "Órgão": 19,
+        "Acordeão": 22,
         "Guitarra Elétrica": 30,
+        "Baixo Elétrico": 34,
         "Violino": 40,
-        "Flauta": 73
+        "Voz Humana": 54,
+        "Flauta": 73,
+        "Ocarina": 80,
+        "Helicóptero": 126
     }
 
     def __init__(self, name):

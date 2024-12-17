@@ -14,10 +14,10 @@ MIN_OCTAVE = 0
 MAX_VOLUME = 127
 MIN_VOLUME = 0
 VAR_VOLUME = 10
-VAR_DURATION = 0.1
+VAR_DURATION = 4
 INITIAL_VOLUME = 32
 INITIAL_OCTAVE = 4
-INITIAL_DURATION = 0.5
+INITIAL_DURATION = 30
 INITIAL_INSTRUMENT = Instrument("Piano")
 
 class MusicGenerator:
@@ -63,13 +63,16 @@ class MusicGenerator:
                         self.dec_duration()
                 case 'pause':
                     self.pause(value)
+                case _:
+                    print(text)
+                    self.pause(1)    
 
     def play_note(self, pitch_base):
         # Calcula o valor final do pitch somando a base com a oitava
-        note = Note(pitch_base, self.duration, self.volume, self.octave)
+        note = Note(pitch_base, self.duration/60, self.volume, self.octave)
         note.play(self.midi_out)
-        self.track.append(Message('note_on', note=note.pitch, velocity=self.volume, time=0))  # Inicia a nota
-        self.track.append(Message('note_off', note=note.pitch, velocity=self.volume, time=int(PPQ*self.duration)))  # Duração da nota (480 ticks)
+        self.track.append(Message('note_on', note=note.pitch, velocity=self.volume, time=0))  
+        self.track.append(Message('note_off', note=note.pitch, velocity=self.volume, time=int(PPQ*self.duration/60))) 
 
     def add_volume(self):
         self.volume = min(self.volume + VAR_VOLUME , MAX_VOLUME) 
@@ -103,12 +106,12 @@ class MusicGenerator:
 
     def dec_duration(self):
         # Diminui a duração da nota (mínimo 0)
-        self.duration = max(self.duration - VAR_DURATION, 0)
+        self.duration = max(self.duration - VAR_DURATION, 1)
 
     def pause(self, pause_duration):
         # Pausa entre ações de acordo com o valor passado
         pygame.time.delay(pause_duration)
-        self.track.append(Message('note_on', note=0, velocity=0, time=pause_duration*PPQ))  # Pausa com duração específica
+        self.track.append(Message('note_on', note=0, velocity=0, time=int(pause_duration*PPQ/1000))) # Para segundos 
 
     def save_midi(self, file_name):
         # Salva o arquivo MIDI gerado
